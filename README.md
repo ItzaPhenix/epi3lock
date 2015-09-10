@@ -1,8 +1,9 @@
-i3lock - improved screen locker
-===============================
-i3lock is a simple screen locker like slock. After starting it, you will
-see a white screen (you can configure the color/an image). You can return
-to your screen by entering your password.
+epi3lock (i3lock fork) - improved screen locker for EPITA
+=========================================================
+epi3lock is a simple screen locker for on i3lock. After starting it, you will
+see a black screen (you can configure the color/an image), time since the user
+are locked, current time, login of user and number of failed attemps.
+You can return to your screen by entering your password.
 
 Many little improvements have been made to i3lock over time:
 
@@ -34,9 +35,13 @@ Requirements
 
 Running i3lock
 -------------
-Simply invoke the 'i3lock' command. To get out of it, enter your password and
+Simply invoke the 'epi3lock' command. To get out of it, enter your password and
 press enter.
 
-Upstream
---------
-Please submit pull requests to https://github.com/i3/i3lock
+Know bugs
+---------
+Currently, timer needs to be refresh with a pressed-key.
+
+Contributors
+------------
+- Guillaume Dupuis (EPITA - ACU 2016)
