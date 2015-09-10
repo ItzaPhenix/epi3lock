@@ -837,7 +837,7 @@ int main(int argc, char *argv[]) {
     localtime_r(&curtime, lock_time);
 
     /* Initialize PAM */
-    ret = pam_start("i3lock", username, &conv, &pam_handle);
+    ret = pam_start("epi3lock", username, &conv, &pam_handle);
     if (ret != PAM_SUCCESS)
         errx(EXIT_FAILURE, "PAM: %s", pam_strerror(pam_handle, ret));
 
