@@ -3,6 +3,8 @@ PREFIX=/usr
 SYSCONFDIR=/etc
 PKG_CONFIG=pkg-config
 
+OUT=epi3lock
+
 # Check if pkg-config is installed, we need it for building CFLAGS/LIBS
 ifeq ($(shell which $(PKG_CONFIG) 2>/dev/null 1>/dev/null || echo 1),1)
 $(error "$(PKG_CONFIG) was not found")
@@ -27,28 +29,28 @@ CPPFLAGS += -DVERSION=\"${GIT_VERSION}\"
 
 .PHONY: install clean uninstall
 
-all: i3lock
+all: ${OUT}
 
-i3lock: ${FILES}
+${OUT}: ${FILES}
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f i3lock ${FILES} i3lock-${VERSION}.tar.gz
+	rm -f ${OUT} ${FILES} ${OUT}-${VERSION}.tar.gz
 
 install: all
 	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -d $(DESTDIR)$(SYSCONFDIR)/pam.d
-	$(INSTALL) -m 755 i3lock $(DESTDIR)$(PREFIX)/bin/i3lock
-	$(INSTALL) -m 644 i3lock.pam $(DESTDIR)$(SYSCONFDIR)/pam.d/i3lock
+	$(INSTALL) -m 755 ${OUT} $(DESTDIR)$(PREFIX)/bin/${OUT}
+	$(INSTALL) -m 644 ${OUT}.pam $(DESTDIR)$(SYSCONFDIR)/pam.d/${OUT}
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/i3lock
+	rm -f $(DESTDIR)$(PREFIX)/bin/${OUT}
 
 dist: clean
-	[ ! -d i3lock-${VERSION} ] || rm -rf i3lock-${VERSION}
-	[ ! -e i3lock-${VERSION}.tar.bz2 ] || rm i3lock-${VERSION}.tar.bz2
-	mkdir i3lock-${VERSION}
-	cp *.c *.h i3lock.1 i3lock.pam Makefile LICENSE README.md CHANGELOG i3lock-${VERSION}
-	sed -e 's/^GIT_VERSION:=\(.*\)/GIT_VERSION:=$(shell /bin/echo '${GIT_VERSION}' | sed 's/\\/\\\\/g')/g;s/^VERSION:=\(.*\)/VERSION:=${VERSION}/g' Makefile > i3lock-${VERSION}/Makefile
-	tar cfj i3lock-${VERSION}.tar.bz2 i3lock-${VERSION}
-	rm -rf i3lock-${VERSION}
+	[ ! -d ${OUT}-${VERSION} ] || rm -rf ${OUT}-${VERSION}
+	[ ! -e ${OUT}-${VERSION}.tar.bz2 ] || rm ${OUT}-${VERSION}.tar.bz2
+	mkdir ${OUT}-${VERSION}
+	cp *.c *.h ${OUT}.1 ${OUT}.pam Makefile LICENSE README.md CHANGELOG ${OUT}-${VERSION}
+	sed -e 's/^GIT_VERSION:=\(.*\)/GIT_VERSION:=$(shell /bin/echo '${GIT_VERSION}' | sed 's/\\/\\\\/g')/g;s/^VERSION:=\(.*\)/VERSION:=${VERSION}/g' Makefile > ${OUT}-${VERSION}/Makefile
+	tar cfj ${OUT}-${VERSION}.tar.bz2 ${OUT}-${VERSION}
+	rm -rf ${OUT}-${VERSION}
