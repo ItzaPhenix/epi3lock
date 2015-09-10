@@ -45,7 +45,7 @@
 typedef void (*ev_callback_t)(EV_P_ ev_timer *w, int revents);
 
 /* We need this for libxkbfile */
-char color[7] = "ffffff";
+char color[7] = "000000";
 int inactivity_timeout = 30;
 uint32_t last_resolution[2];
 xcb_window_t win;
@@ -81,6 +81,7 @@ bool tile = false;
 bool ignore_empty_password = false;
 bool skip_repeated_empty_password = false;
 
+struct tm *lock_time;
 /* isutf, u8_dec © 2005 Jeff Bezanson, public domain */
 #define isutf(c) (((c)&0xC0) != 0x80)
 
@@ -202,7 +203,7 @@ ev_timer *stop_timer(ev_timer *timer_obj) {
 static void clear_pam_wrong(EV_P_ ev_timer *w, int revents) {
     DEBUG("clearing pam wrong\n");
     pam_state = STATE_PAM_IDLE;
-    unlock_state = STATE_STARTED;
+    unlock_state = STATE_KEY_PRESSED;
     redraw_screen();
 
     /* Clear modifier string. */
@@ -225,14 +226,6 @@ static void clear_input(void) {
     clear_password_memory();
     password[input_position] = '\0';
 
-    /* Hide the unlock indicator after a bit if the password buffer is
-     * empty. */
-    if (unlock_indicator) {
-        START_TIMER(clear_indicator_timeout, 1.0, clear_indicator_cb);
-        unlock_state = STATE_BACKSPACE_ACTIVE;
-        redraw_screen();
-        unlock_state = STATE_KEY_PRESSED;
-    }
 }
 
 static void discard_passwd_cb(EV_P_ ev_timer *w, int revents) {
@@ -413,10 +406,12 @@ static void handle_key_press(xcb_key_press_event_t *event) {
         case XKB_KEY_BackSpace:
             if (input_position == 0)
                 return;
+            else {
 
             /* decrement input_position to point to the previous glyph */
             u8_dec(password, &input_position);
             password[input_position] = '\0';
+            }
 
             /* Hide the unlock indicator after a bit if the password buffer is
          * empty. */
@@ -833,6 +828,14 @@ int main(int argc, char *argv[]) {
      * the unlock indicator upon keypresses. */
     srand(time(NULL));
 
+    /* We need to save the current time in order to display the time when
+     * the computer was locked. Since this could lead to our PRNG seed being
+     * visible to the user, we should make sure that we're not using rand()
+     * for anything important (spoiler: we aren't). */
+    time_t curtime = time(NULL);
+    lock_time = malloc(sizeof(struct tm));
+    localtime_r(&curtime, lock_time);
+
     /* Initialize PAM */
     ret = pam_start("i3lock", username, &conv, &pam_handle);
     if (ret != PAM_SUCCESS)
@@ -973,9 +976,17 @@ int main(int argc, char *argv[]) {
     ev_prepare_init(xcb_prepare, xcb_prepare_cb);
     ev_prepare_start(main_loop, xcb_prepare);
 
+    redraw_screen();
+    unlock_state = STATE_KEY_PRESSED;
+
+    struct ev_timer *timeout = NULL;
+    START_TIMER(timeout, TSTAMP_N_SECS(0.25), redraw_timeout);
+    STOP_TIMER(clear_indicator_timeout);
+
     /* Invoke the event callback once to catch all the events which were
      * received up until now. ev will only pick up new events (when the X11
      * file descriptor becomes readable). */
+
     ev_invoke(main_loop, xcb_check, 0);
     ev_loop(main_loop, 0);
 }
