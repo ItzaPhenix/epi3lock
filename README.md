@@ -40,7 +40,6 @@ press enter.
 
 Know bugs
 ---------
-Currently, timer needs to be refresh with a pressed-key.
 
 Contributors
 ------------
