@@ -27,6 +27,8 @@ VERSION:=$(shell git describe --tags --abbrev=0)
 GIT_VERSION:="$(shell git describe --tags --always) ($(shell git log --pretty=format:%cd --date=short -n1))"
 CPPFLAGS += -DVERSION=\"${GIT_VERSION}\"
 
+TARBALL=${OUT}-${VERSION}.tar.bz2
+
 .PHONY: install clean uninstall
 
 all: ${OUT}
@@ -45,6 +47,9 @@ install: all
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/${OUT}
+
+export:
+	git archive HEAD --prefix=${OUT}-${VERSION} | bzip2 > ${TARBALL}
 
 dist: clean
 	[ ! -d ${OUT}-${VERSION} ] || rm -rf ${OUT}-${VERSION}
