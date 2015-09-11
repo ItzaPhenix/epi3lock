@@ -187,7 +187,7 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
                 cairo_set_source_rgb(ctx, 125.0 / 255, 51.0 / 255, 0);
                 break;
             case STATE_PAM_IDLE:
-                cairo_set_source_rgb(ctx, 0, 0, 125.0 / 255);
+                cairo_set_source_rgb(ctx, 160.0 / 255, 160.0 / 255, 160.0 / 255);
                 break;
         }
         cairo_stroke(ctx);
@@ -295,10 +295,10 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
                       highlight_start + (M_PI / 3.0));
             if (unlock_state == STATE_KEY_ACTIVE) {
                 /* For normal keys, we use a lighter green. */
-                cairo_set_source_rgb(ctx, 51.0 / 255, 0, 219.0 / 255);
+                cairo_set_source_rgb(ctx, 1, 1, 1);
             } else {
-                /* For backspace, we use red. */
-                cairo_set_source_rgb(ctx, 125.0 / 255, 0, 0);
+                /* For backspace, we use black. */
+                cairo_set_source_rgb(ctx, 0, 0, 0);
             }
             cairo_stroke(ctx);
 
