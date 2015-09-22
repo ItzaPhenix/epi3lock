@@ -171,6 +171,27 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
                   0 /* start */,
                   2 * M_PI /* end */);
 
+        /* Display some useful information. */
+        /* Time (centered) */
+        char *text = malloc(INFO_MAXLENGTH);
+        time_t curtime = time(NULL);
+        struct tm *tm = localtime(&curtime);
+
+        if (tm->tm_sec >= lock_time->tm_sec)
+            tm->tm_sec -= lock_time->tm_sec;
+        else
+            tm->tm_sec += (60 - lock_time->tm_sec);
+
+        if (tm->tm_min >= lock_time->tm_min)
+            tm->tm_min -= lock_time->tm_min;
+        else
+            tm->tm_min += (60 - lock_time->tm_min);
+
+        if (tm->tm_hour >= lock_time->tm_hour)
+            tm->tm_hour -= lock_time->tm_hour;
+        else
+            tm->tm_hour += (24 - lock_time->tm_hour);
+
         /* Use the appropriate color for the different PAM states
          * (currently verifying, wrong password, or default) */
         switch (pam_state) {
@@ -184,6 +205,9 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
                 cairo_set_source_rgba(ctx, 0, 0, 0, 0.75);
                 break;
         }
+        if (tm->tm_hour >= 1)
+            cairo_set_source_rgba(ctx, 250.0 / 255, 0, 0, 0.75);
+
         cairo_fill_preserve(ctx);
 
         switch (pam_state) {
@@ -197,16 +221,18 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
                 cairo_set_source_rgb(ctx, 160.0 / 255, 160.0 / 255, 160.0 / 255);
                 break;
         }
+        if (tm->tm_hour >= 1)
+            cairo_set_source_rgb(ctx, 125.0 / 255, 51.0 / 255, 0);
+
         cairo_stroke(ctx);
 
-        /* Display some useful information. */
-        /* Time (centered) */
-        char *text = malloc(INFO_MAXLENGTH);
-        time_t curtime = time(NULL);
-        struct tm *tm = localtime(&curtime);
+        /* set time display */
         strftime(text, 100, INFO_TIME_FORMAT, tm);
 
-        cairo_set_source_rgb(ctx, 255, 255, 255);
+        if (tm->tm_hour >= 1)
+            cairo_set_source_rgb(ctx, 255, 255, 255);
+        else
+            cairo_set_source_rgb(ctx, 255, 255, 255);
         cairo_set_font_size(ctx, 32.0);
 
         cairo_text_extents_t time_extents;
@@ -260,8 +286,9 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
         }
 
         /* Lock time (above) */
-        text = malloc(INFO_MAXLENGTH);
-        strftime(text, INFO_MAXLENGTH, "Locked since " INFO_LOCKTIME_FORMAT ".", lock_time);
+        //text = malloc(INFO_MAXLENGTH);
+        text = "Locked since";
+        //strftime(text, INFO_MAXLENGTH, "Locked since " INFO_LOCKTIME_FORMAT ".", lock_time);
 
         cairo_text_extents(ctx, text, &extents);
         x = BUTTON_CENTER - ((extents.width / 2) + extents.x_bearing);
@@ -271,7 +298,7 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
         cairo_show_text(ctx, text);
         cairo_close_path(ctx);
 
-        free(text);
+        //free(text);
 
         /* Draw an inner seperator line. */
         cairo_set_source_rgb(ctx, 0, 0, 0);
