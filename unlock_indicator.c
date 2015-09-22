@@ -182,15 +182,18 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
         else
             tm->tm_sec += (60 - lock_time->tm_sec);
 
-        if (tm->tm_min >= lock_time->tm_min)
-            tm->tm_min -= lock_time->tm_min;
-        else
-            tm->tm_min += (60 - lock_time->tm_min);
-
         if (tm->tm_hour >= lock_time->tm_hour)
             tm->tm_hour -= lock_time->tm_hour;
         else
             tm->tm_hour += (24 - lock_time->tm_hour);
+
+        if (tm->tm_min >= lock_time->tm_min)
+            tm->tm_min -= lock_time->tm_min;
+        else
+        {
+            tm->tm_hour--;
+            tm->tm_min += (60 - lock_time->tm_min);
+        }
 
         /* Use the appropriate color for the different PAM states
          * (currently verifying, wrong password, or default) */
