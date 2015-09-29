@@ -1,5 +1,9 @@
+[![Build
+Status](https://travis-ci.org/ItzaPhenix/epi3lock.svg?branch=master)](https://travis-ci.org/ItzaPhenix/epi3lock)
+
 epi3lock (i3lock fork) - improved screen locker for EPITA
 =========================================================
+
 epi3lock is a simple screen locker for on i3lock. After starting it, you will
 see a black screen (you can configure the color/an image), time since the user
 are locked, current time, login of user and number of failed attemps.
