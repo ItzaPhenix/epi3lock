@@ -18,8 +18,6 @@ install:
   libxkbfile-dev
 script:
 - make -j
-- clang-format-3.5 -i *.[ch] && git diff --exit-code || (echo 'Code was not formatted
-  using clang-format!'; false)
 deploy:
   provider: releases
   api_key:
