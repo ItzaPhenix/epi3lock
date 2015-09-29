@@ -1,22 +1,30 @@
 language: c
 compiler:
-  - gcc
-# TODO: re-enable clang once libxkbcommon >= 0.5.0 can be installed from packages. Compiling libxkbcommon with clang fails in the libtool step.
-#  - clang
+- gcc
 before_install:
-  # The travis VMs run on Ubuntu 12.04 which is very old and a huge pain to get
-  # into a state where we can build a recent version of i3status :(.
-  - "echo 'APT::Default-Release \"precise\";' | sudo tee /etc/apt/apt.conf.d/default-release"
-  - "echo 'deb http://archive.ubuntu.com/ubuntu/ utopic main universe' | sudo tee /etc/apt/sources.list.d/utopic.list"
-  - sudo apt-get update
-  - sudo apt-get install -t utopic clang-format-3.5
-  - clang-format-3.5 --version
+- echo 'APT::Default-Release "precise";' | sudo tee /etc/apt/apt.conf.d/default-release
+- echo 'deb http://archive.ubuntu.com/ubuntu/ utopic main universe' | sudo tee /etc/apt/sources.list.d/utopic.list
+- sudo apt-get update
+- sudo apt-get install -t utopic clang-format-3.5
+- clang-format-3.5 --version
 install:
-  # TODO: Once libxkbcommon >= 0.5.0 is in Debian, install it from there.
-  # These are the Build-Depends of libxkbcommon:
-  - sudo apt-get install pkg-config xutils-dev bison flex libx11-dev libxcb-xkb-dev x11-xkb-utils x11proto-core-dev x11proto-kb-dev xkb-data xvfb
-  - (cd /tmp && wget -nv https://github.com/xkbcommon/libxkbcommon/archive/xkbcommon-0.5.0.tar.gz && tar xf xkbcommon-0.5.0.tar.gz && cd libxkbcommon-xkbcommon-0.5.0; ./autogen.sh && ./configure && make && sudo make install)
-  - sudo apt-get install pkg-config libpam0g-dev libcairo2-dev libxcb1-dev libxcb-dpms0-dev libxcb-image0-dev libxcb-util0-dev libev-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbfile-dev
+- sudo apt-get install pkg-config xutils-dev bison flex libx11-dev libxcb-xkb-dev
+  x11-xkb-utils x11proto-core-dev x11proto-kb-dev xkb-data xvfb
+- (cd /tmp && wget -nv https://github.com/xkbcommon/libxkbcommon/archive/xkbcommon-0.5.0.tar.gz
+  && tar xf xkbcommon-0.5.0.tar.gz && cd libxkbcommon-xkbcommon-0.5.0; ./autogen.sh
+  && ./configure && make && sudo make install)
+- sudo apt-get install pkg-config libpam0g-dev libcairo2-dev libxcb1-dev libxcb-dpms0-dev
+  libxcb-image0-dev libxcb-util0-dev libev-dev libxcb-xinerama0-dev libxcb-xkb-dev
+  libxkbfile-dev
 script:
-  - make -j
-  - clang-format-3.5 -i *.[ch] && git diff --exit-code || (echo 'Code was not formatted using clang-format!'; false)
+- make -j
+- clang-format-3.5 -i *.[ch] && git diff --exit-code || (echo 'Code was not formatted
+  using clang-format!'; false)
+deploy:
+  provider: releases
+  api_key:
+    secure: maVMhM/zLUBleVEOhYFRGvTSbL3FnlebSjOcMVvOMnl0IkhOFTnh1wzySe03DPOQKZGBNTJisb9uEL4qp7g6sLt8yHPtRrXL1g0sfYIauFlQanAF9WwUCMBmLzn0hGw+DLiy81zSLvXiC2xY9r1G+qDnS8CHuITpPLDXMBjDa+/uCZk37nLhX1SjL6bHbovK63kpLgLvsA8PvBULXMD4oNhbP/ComXVztGHu5SyvDkV6W1jyM83eStFub3Lq3rDCPs9Oilw0sAZaIP21QMEFdjHjhqon8enVICF2q/4k9O2Kgo94ikqlJpMwSgRDQ5uHjkKGzDjVxtaE7CJP8iI+eL2hNI0AE371w8pLQ4xfhqEI8tSvWXa/r2ACTq0KIgo1viMkqc0KPLjWKJz7STDZkIpEMrfutlnKQvpPnb7DzfXb2RFgW2lQZSYVH76egWjxIk3ZAWOzUBOTVZUcYcjQik3j5EieerqGb3cd5c/qkKuD0BhbrBdQnGIAPmh2lPLt/UDGGv+AIhlfDuaOBWExVHMmMTgxhgAqwnzaa0eN8m4TF1LnS+7hH6VGB6KQzSl002CjqbIjUqZLxKL8+kyu7QFc2LCmxsolRjAxajGJUcueSjODsIy27iGGi3xj3osUts+1HmGE4seB0iJIo5Ke/dt+4LXWDddB6DuhIQAbnI4=
+  file: epi3lock
+  on:
+    tags: true
+    repo: ItzaPhenix/epi3lock
